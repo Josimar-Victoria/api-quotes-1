@@ -3,10 +3,10 @@ const mongoose = require('mongoose')
 const postSchema = new mongoose.Schema({
   caption: String,
 
-  userPhoto: {
-    public_id: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
+  // userPhoto: {
+  //   public_id: mongoose.Schema.Types.ObjectId,
+  //   ref: 'User'
+  // },
 
   image: {
     public_id: String,
