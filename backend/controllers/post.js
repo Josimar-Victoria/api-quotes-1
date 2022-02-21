@@ -13,7 +13,7 @@ exports.createPost = async (req, res) => {
 
     const newPost = await Post.create(newPostData)
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       post: newPost,
       message: 'Publicacion creada con exito'

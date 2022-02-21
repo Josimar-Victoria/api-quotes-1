@@ -17,10 +17,10 @@ exports.register = async (req, res) => {
       name,
       email,
       password,
-      avatar: { public_id: 'prueva', url: 'prueva' }
+      avatar: { public_id: 'prueba', url: 'prueba' }
     })
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       user
     })
