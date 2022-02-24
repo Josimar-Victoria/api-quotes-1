@@ -5,14 +5,13 @@ exports.isAuthenticated = async (req, res, next) => {
   try {
     const { token } = req.cookies
 
-   
     if (!token) {
       return res.status(400).json({
         message: 'Por favor registrate'
       })
     }
 
-    const decoded = await jwt.verify(token, process.env.SECRET)
+    const decoded = await jwt.verify(token, process.env.JWT_SECRET)
 
     req.user = await User.findById(decoded._id)
 
