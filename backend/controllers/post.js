@@ -32,3 +32,44 @@ exports.createPost = async (req, res) => {
     })
   }
 }
+
+// Me gusta y no me gusta la publicación
+exports.likeAndUnlikePost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id)
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Publicación no encontrada'
+      })
+    }
+
+    if (post.likes.includes(req.user._id)) {
+      const index = post.likes.indexOf(req.user._id)
+
+      post.likes.splice(index, 1)
+
+      await post.save()
+
+      return res.status(200).json({
+        success: true,
+        message: 'No me gusta'
+      })
+    } else {
+      post.likes.push(req.user._id)
+
+      await post.save()
+
+      return res.status(200).json({
+        success: true,
+        message: 'Me gusta'
+      })
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    })
+  }
+}
