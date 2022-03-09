@@ -1,6 +1,50 @@
 const Post = require('../models/PostModels')
 const User = require('../models/UserModels')
 
+class APIfeatures {
+  constructor (query, queryString) {
+    this.query = query
+    this.queryString = queryString
+  }
+  filtering () {
+    const queryObj = { ...this.queryString } //queryString = req.query
+
+    const excludedFields = ['page', 'sort', 'limit']
+    excludedFields.forEach(el => delete queryObj[el])
+
+    let queryStr = JSON.stringify(queryObj)
+    queryStr = queryStr.replace(
+      /\b(gte|gt|lt|lte|regex)\b/g,
+      match => '$' + match
+    )
+
+    //    gte = mayor que o igual
+    //    lte = menor o igual que
+    //    lt = menor que
+    //    gt = mas grande que
+    this.query.find(JSON.parse(queryStr))
+
+    return this
+  }
+  sorting () {
+    if (this.queryString.sort) {
+      const sortBy = this.queryString.sort.split(',').join(' ')
+      this.query = this.query.sort(sortBy)
+    } else {
+      this.query = this.query.sort('-createdAt')
+    }
+
+    return this
+  }
+  paginating () {
+    const page = this.queryString.page * 1 || 1
+    const limit = this.queryString.limit * 1 || 9
+    const skip = (page - 1) * limit
+    this.query = this.query.skip(skip).limit(limit)
+    return this
+  }
+}
+
 exports.createPost = async (req, res) => {
   try {
     const newPostData = {
@@ -24,6 +68,28 @@ exports.createPost = async (req, res) => {
       success: true,
       post,
       message: 'Publicacion creada con exito'
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    })
+  }
+}
+
+exports.getAllPost = async (req, res) => {
+  try {
+    const features = new APIfeatures(Post.find(), req.query)
+      .filtering()
+      .sorting()
+      .paginating()
+
+    const posts = await features.query
+
+    res.json({
+      status: 'success',
+      results: posts.length,
+      posts
     })
   } catch (error) {
     res.status(500).json({
