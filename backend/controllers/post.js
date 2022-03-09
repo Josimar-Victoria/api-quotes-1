@@ -33,6 +33,47 @@ exports.createPost = async (req, res) => {
   }
 }
 
+// Eliminar Publicación
+exports.deletePost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id)
+
+    if (!post) {
+      res.status(404).json({
+        success: false,
+        message: 'Publicación no encontrada'
+      })
+    }
+
+    if (post.owner.toString() !== req.user._id.toString()) {
+      res.status(404).json({
+        success: false,
+        message: 'No autorizado para Eliminar esta Publicación'
+      })
+    }
+
+    await post.remove()
+
+    const user = await User.findById(req.user._id)
+
+    const index = user.posts.indexOf(req.params.id)
+
+    user.posts.splice(index, 1)
+
+    await user.save()
+
+    res.status(200).json({
+      success: true,
+      message: 'Publicación eliminada con exito'
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    })
+  }
+}
+
 // Me gusta y no me gusta la publicación
 exports.likeAndUnlikePost = async (req, res) => {
   try {
